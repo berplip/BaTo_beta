@@ -1,5 +1,5 @@
 # utils.py
-# Funciones de utilidad general para la aplicación.
+# Funciones de utilidad general para la aplicación
 
 import webbrowser
 from tkinter import messagebox
