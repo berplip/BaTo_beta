@@ -514,7 +514,7 @@ def _abrir_ventana_gestion_usuarios_ui_accion():
                 messagebox.showerror("Error", f"El usuario '{nombre}' ya existe o hubo un error al registrar.", parent=ventana_nuevo_usuario)
 
         ttk.Button(frame_nuevo, text="Registrar", command=_guardar_nuevo_usuario, style="Accent.TButton").pack(pady=10)
-
+#w
 
     def _eliminar_usuario_ui_accion():
         """Elimina un usuario seleccionado."""
