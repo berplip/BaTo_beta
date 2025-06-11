@@ -5,12 +5,12 @@ from tkinter import ttk, messagebox, filedialog
 from PIL import Image, ImageTk
 import os
 import datetime
-import re
+import re 
 
 # Importaciones de otros módulos del proyecto
 import config
 import data_manager
-import auth_handler
+import auth_handler 
 from excel_logger import registrar_accion_excel
 from utils import abrir_enlace_web_util
 
@@ -26,7 +26,7 @@ style_aplicacion_global = None
 
 # Variable para almacenar la referencia a la ventana de login Toplevel
 # Esto nos permite gestionarla más directamente.
-ventana_login_actual_ref = None
+ventana_login_actual_ref = None 
 
 # --- Funciones Auxiliares de UI ---
 def _limpiar_frame_contenido_widgets(frame):
@@ -531,24 +531,26 @@ def _abrir_ventana_gestion_usuarios_ui_accion():
             if auth_handler.eliminar_usuario(nombre_usuario_sel):
                 registrar_accion_excel("Eliminacion Usuario", f"Usuario: {nombre_usuario_sel}")
                 messagebox.showinfo("Eliminado", f"Usuario '{nombre_usuario_sel}' eliminado.", parent=ventana_gestion_usuarios)
-                _actualizar_lista_usuarios() 
+                _actualizar_lista_usuarios()
             else:
                 messagebox.showerror("Error", "No se pudo eliminar el usuario.", parent=ventana_gestion_usuarios)
 
 
     btn_frame_user_mgmt = ttk.Frame(main_frame_user_mgmt, style="UserMgmt.TFrame")
     btn_frame_user_mgmt.pack(fill="x", pady=10)
+
+    # Botones de acción para la gestión de usuarios w
     ttk.Button(btn_frame_user_mgmt, text="Guardar Cambios", command=_guardar_cambios_usuario, style="Accent.TButton").pack(side="left", padx=(0,10))
-    ttk.Button(btn_frame_mgmt, text="Registrar Nuevo", command=_registrar_nuevo_usuario_ui_accion, style="Accent.TButton").pack(side="left", padx=(0,10))
+    ttk.Button(btn_frame_user_mgmt, text="Registrar Nuevo", command=_registrar_nuevo_usuario_ui_accion, style="Accent.TButton").pack(side="left", padx=(0,10)) # <--- ¡ERROR CORREGIDO AQUÍ!
     ttk.Button(btn_frame_user_mgmt, text="Eliminar Usuario", command=_eliminar_usuario_ui_accion, style="Accent.TButton").pack(side="left")
 
     lista_usuarios_widget.bind("<<ListboxSelect>>", _seleccionar_usuario_para_edicion)
-    _actualizar_lista_usuarios() 
+    _actualizar_lista_usuarios()
 
 # --- Funciones para Construir las Ventanas Principales ---
 def _intentar_login_ui_logic(entry_usuario, entry_contrasena, ventana_login_ref_local, app_main_ref, callback_exito_login_ref):
     """Lógica para intentar autenticar al usuario."""
-    global ventana_login_actual_ref 
+    global ventana_login_actual_ref
     usuario_ingresado_login = entry_usuario.get().strip()
     contrasena_ingresada_login = entry_contrasena.get().strip()
     info_usuario_autenticado = auth_handler.autenticar_usuario(usuario_ingresado_login, contrasena_ingresada_login)
@@ -704,5 +706,5 @@ def on_app_close_ui():
     else:
         registrar_accion_excel("Cierre Aplicacion", "Sin inicio de sesion previo (cerrado desde login o sesion ya limpia).")
     
-    if app_principal_ref:
+    if app_principal_ref: 
         app_principal_ref.destroy()
