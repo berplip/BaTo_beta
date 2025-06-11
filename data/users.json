@@ -1,0 +1,10 @@
+{
+    "usuario1": {
+    "contrasena_hash": "9b8769a4a742959a2d0298c36fb70623f2dfacda8436237df08d8dfd5b37374c",
+    "rol": "usuario"
+    },
+    "admin": {
+    "contrasena_hash": "713bfda78870bf9d1b261f565286f85e97ee614efe5f0faf7c34e7ca4f65baca",
+    "rol": "administrador"
+    }
+}
