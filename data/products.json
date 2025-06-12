@@ -1,10 +1,9 @@
 {
   "LP7516": {
-    "serie": "777",
+    "info": "Conector de 5 pines y RS232.",
     "manual": "lp7516manual.pdf",
     "calibracion": "https://www.youtube.com/watch?v=WJbHmguujdc&ab_channel=ONECOIN",
     "bateria": "4V4AH/20HR",
-    "info": "Conector de 5 pines y RS232.",
     "imagen": "LP7516sec01.png",
     "stock": 10,
     "calibración": "",
@@ -21,33 +20,30 @@
     "stock": 5
   },
   "XKSS-WP": {
-    "serie": "123 ",
+    "info": "Indicador de Acero Inox. LCD impermeable",
     "manual": "https://preview-static.clewm.net/cli/view-doc/view.html?url=https%3A%2F%2Fncstatic.clewm.net%2Frsrc%2F2023%2F0410%2F16%2Fa0825081f66fab397732fff81745fbbe.pdf",
     "calibracion": "https://www.youtube.com/shorts/9sEhWFhh_40",
     "bateria": "6V4AH",
-    "info": "Indicador de Acero Inox. LCD impermeable",
     "imagen": "XKSS-WP.png",
     "stock": 1
   },
   "TRASPALETA": {
-    "serie": "XYZ789",
+    "info": "Balanza integrada en transpaleta manual.",
     "manual": "TRASPALETA_manual.pdf",
     "calibracion": "",
     "bateria": "Batería recargable específica.",
-    "info": "Balanza integrada en transpaleta manual.",
     "imagen": "TRASPALETA.png",
     "stock": 3
   },
-    "JCS-BI": {
-    "serie": "nose",
+  "JCS-BI": {
     "manual": "lp7516manual.pdf",
     "calibracion": "https://www.youtube.com/shorts/9sEhWFhh_40",
     "bateria": "4V4AH/20HR",
     "info": "Conector de 5 pines y RS232.",
     "imagen": "JCS-BI-sec.png",
     "stock": 10,
-    "calibración": "",
-    "batería": "",
+    "calibración": "https://open.spotify.com/intl-es/track/62AdLIvL8qZYX0FhxVJLND?si=f84c03058e794218",
+    "batería": "Niquel",
     "imagen_(ej": ""
   }
 }

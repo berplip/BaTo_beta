@@ -25,7 +25,7 @@ if __name__ == "__main__":
         except tk.TclError as e:
             print(f"ADVERTENCIA: No se pudo cargar el ícono de la aplicación '{LOGO_ICON_FULL_PATH}': {e}")
             # Puedes considerar mostrar un messagebox aquí si el ícono es crítico,
-            # pero una advertencia en consola es suficiente para un ícono.
+            # pero una advertencia en consola es suficiente para un ícono..
     else:
         print(f"ADVERTENCIA: Archivo de ícono '{LOGO_ICON_FULL_PATH}' no encontrado.")
 
