@@ -43,3 +43,9 @@ USERS_DATA_FILENAME = "users.json"
 PRODUCTS_DATA_FILENAME = "products.json"
 USERS_DATA_FILE_FULL_PATH = os.path.join(DATA_PATH, USERS_DATA_FILENAME)
 PRODUCTS_DATA_FILE_FULL_PATH = os.path.join(DATA_PATH, PRODUCTS_DATA_FILENAME)
+
+# NUEVO: Directorio y ruta para el ícono de la aplicación
+LOGO_APP_DIR_NAME = "logo_app_jr" # Nombre de la nueva carpeta propuesta
+LOGO_APP_PATH = os.path.join(BASE_DIR, LOGO_APP_DIR_NAME)
+LOGO_ICON_FILENAME = "logo.ico" # Nombre del archivo del ícono
+LOGO_ICON_FULL_PATH = os.path.join(LOGO_APP_PATH, LOGO_ICON_FILENAME)
