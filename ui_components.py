@@ -14,7 +14,7 @@ import auth_handler
 from excel_logger import registrar_accion_excel
 from utils import abrir_enlace_web_util
 
-# --- Variables de Módulo para Referencias a Widgets ---
+# -w- Variables de Módulo para Referencias a Widgets -w-
 app_principal_ref = None # Referencia a la ventana Tkinter principal (root_app)
 entrada_modelo_busqueda_widget = None
 lista_sugerencias_busqueda_widget = None
@@ -53,10 +53,31 @@ def _calcular_y_actualizar_total_stock_ui():
         lbl_total_stock_widget.config(text=f"Stock Total Global: {total} unidades")
 
 def _es_url_valida(url_string):
-    """Valida si un string es una URL HTTP/HTTPS básica."""
-    if not url_string: return True 
+    """Valida si un string es una URL HTTP/HTTPS básica o una ruta de archivo local existente.
+    
+    Args:
+        url_string (str): La cadena a validar.
+
+    Returns:
+        bool: True si es una URL válida o una ruta de archivo local existente, False en caso contrario.
+    """
+    # Permitir cadenas vacías, ya que la ausencia de un recurso es válida.
+    if not url_string: 
+        return True
+    
+    # Comprobar si es una URL web (http o https)
     url_pattern = re.compile(r'^(http|https)://[^\s/$.?#].[^\s]*$')
-    return re.match(url_pattern, url_string) is not None
+    if re.match(url_pattern, url_string) is not None:
+        return True
+    
+    # Si no es una URL web, comprobar si es una ruta de archivo local
+    # Se asume que los manuales locales están dentro de MANUALES_PRODUCTOS_PATH
+    ruta_completa_recurso = os.path.join(config.MANUALES_PRODUCTOS_PATH, url_string)
+    if os.path.exists(ruta_completa_recurso):
+        return True
+
+    return False
+
 
 # --- Funciones de Gestión de Sesión ---
 def cerrar_sesion_ui():
@@ -102,13 +123,14 @@ def _abrir_ventana_registrar_producto_ui_accion():
     main_frame_reg.pack(expand=True, fill="both")
     ttk.Label(main_frame_reg, text="Registrar Nuevo Producto", font=("Arial", 14, "bold"), background=config.COLOR_BACKGROUND, foreground=config.COLOR_HEADER_BG).pack(pady=(0,15))
     
-    campos_reg_defs_ui = ["Nombre Producto:", "Serie:", "Manual (URL):", "Calibración (URL):", "Batería:", "Info Adicional:", "Imagen (ej: nombre.png):", "Stock Inicial:"]
+    campos_reg_defs_ui = ["Nombre Producto:", "Serie:", "Manual (URL/Archivo):", "Calibración (URL):", "Batería:", "Info Adicional:", "Imagen (ej: nombre.png):", "Stock Inicial:"]
     entries_reg_ui = {}
     for campo_text_ui in campos_reg_defs_ui:
         row_frame_ui = ttk.Frame(main_frame_reg, style="Reg.TFrame")
         row_frame_ui.pack(fill="x", pady=3)
         ttk.Label(row_frame_ui, text=campo_text_ui, style="Reg.TLabel", width=20).pack(side="left")
-        key_reg_ui = campo_text_ui.split(":")[0].lower().replace(" (url)", "").replace(" (ej nombrepng)", "").replace(" ", "_")
+        # Se actualiza el reemplazo para el texto del campo 'Manual' para que coincida con '(URL/Archivo)'
+        key_reg_ui = campo_text_ui.split(":")[0].lower().replace(" (url)", "").replace(" (url/archivo)", "").replace(" (ej nombrepng)", "").replace(" ", "_")
         if campo_text_ui == "Info Adicional:": entry_ui = tk.Text(row_frame_ui, font=("Arial", 10), width=35, height=4, relief="solid", borderwidth=1, wrap="word")
         else: entry_ui = ttk.Entry(row_frame_ui, style="Reg.TEntry", width=35)
         entry_ui.pack(side="left", fill="x", expand=True)
@@ -133,11 +155,12 @@ def _abrir_ventana_registrar_producto_ui_accion():
             manual_url = entries_reg_ui["manual"].get().strip()
             calibracion_url = entries_reg_ui["calibracion"].get().strip()
 
-            if not _es_url_valida(manual_url):
-                messagebox.showerror("Error de Validación", "URL del manual no válida. Debe comenzar con http:// o https://", parent=ventana_reg)
+            # La validación ahora permite URLs o nombres de archivo locales
+            if manual_url and not _es_url_valida(manual_url):
+                messagebox.showerror("Error de Validación", "URL/Archivo del manual no válida. Debe comenzar con http:// o https://, o ser un nombre de archivo local existente en la carpeta de manuales.", parent=ventana_reg)
                 return
-            if not _es_url_valida(calibracion_url):
-                messagebox.showerror("Error de Validación", "URL de calibración no válida. Debe comenzar con http:// o https://", parent=ventana_reg)
+            if calibracion_url and not _es_url_valida(calibracion_url):
+                messagebox.showerror("Error de Validación", "URL de calibración no válida. Debe comenzar con http:// o https://.", parent=ventana_reg)
                 return
 
             nuevo_producto_datos_reg = {
@@ -190,13 +213,13 @@ def _abrir_ventana_editar_producto_ui_accion(nombre_producto_original):
     main_frame_edit.pack(expand=True, fill="both")
     ttk.Label(main_frame_edit, text=f"Editar Producto: {nombre_producto_original}", font=("Arial", 14, "bold"), background=config.COLOR_BACKGROUND, foreground=config.COLOR_HEADER_BG).pack(pady=(0,15))
 
-    campos_edit_defs_ui = ["Nombre Producto:", "Serie:", "Manual (URL):", "Calibración (URL):", "Batería:", "Info Adicional:", "Imagen (ej: nombre.png):", "Stock:"]
+    campos_edit_defs_ui = ["Nombre Producto:", "Serie:", "Manual (URL/Archivo):", "Calibración (URL):", "Batería:", "Info Adicional:", "Imagen (ej: nombre.png):", "Stock:"]
     entries_edit_ui = {}
     for campo_text_ui in campos_edit_defs_ui:
         row_frame_ui = ttk.Frame(main_frame_edit, style="Edit.TFrame")
         row_frame_ui.pack(fill="x", pady=3)
         ttk.Label(row_frame_ui, text=campo_text_ui, style="Edit.TLabel", width=20).pack(side="left")
-        key_edit_ui = campo_text_ui.split(":")[0].lower().replace(" (url)", "").replace(" (ej nombrepng)", "").replace(" ", "_")
+        key_edit_ui = campo_text_ui.split(":")[0].lower().replace(" (url)", "").replace(" (url/archivo)", "").replace(" (ej nombrepng)", "").replace(" ", "_")
         
         if key_edit_ui == "nombre_producto":
             entry_ui = ttk.Label(row_frame_ui, text=nombre_producto_original, style="Edit.TLabel")
@@ -230,8 +253,8 @@ def _abrir_ventana_editar_producto_ui_accion(nombre_producto_original):
                         cambios_detectados_log.append(f"{key}: '{valor_actual_en_db}' -> '{valor_nuevo_parsed}'")
                     datos_para_actualizar[key] = valor_nuevo_parsed
                 elif key in ["manual", "calibracion"]: 
-                    if not _es_url_valida(valor_nuevo_del_widget):
-                        messagebox.showerror("Error de Validación", f"URL de {key} no válida. Debe comenzar con http:// o https://", parent=ventana_editar)
+                    if valor_nuevo_del_widget and not _es_url_valida(valor_nuevo_del_widget):
+                        messagebox.showerror("Error de Validación", f"URL/Archivo de {key} no válida.", parent=ventana_editar)
                         return
                     if valor_nuevo_del_widget != valor_actual_en_db:
                         cambios_detectados_log.append(f"{key}: '{valor_actual_en_db}' -> '{valor_nuevo_del_widget}'")
@@ -332,6 +355,9 @@ def mostrar_informacion_producto_seleccionado_ui(event=None):
     campos_def = {"serie": "Número de serie:", "manual": "Manual:", "calibracion": "Calibración:", "bateria": "Batería:", "info": "Info Adicional:", "imagen": "Archivo Imagen:", "stock": "Stock:"}
     
     for key, label_txt in campos_def.items():
+        # Los campos 'imagen' y 'stock' solo se muestran para administradores.
+        # Los botones de acción se gestionan por separado más abajo, por lo que este bucle solo
+        # se encarga de mostrar la etiqueta de texto y el valor del campo.
         if data_manager.usuario_actual["rol"] != 'administrador' and key in ['imagen', 'stock']:
             continue
             
@@ -342,8 +368,13 @@ def mostrar_informacion_producto_seleccionado_ui(event=None):
         val_dato = str(datos_prod.get(key, ''))
 
         texto_a_mostrar = val_dato.strip() if val_dato.strip() else "No disponible"
-        if key in ["manual", "calibracion"] and val_dato.strip():
-            texto_a_mostrar = "Disponible"
+        
+        # MODIFICADO: Lógica para mostrar "Disponible" o "No disponible"
+        if key in ["manual", "calibracion"]:
+            if val_dato.strip() and _es_url_valida(val_dato):
+                texto_a_mostrar = "Disponible"
+            else:
+                texto_a_mostrar = "No disponible"
 
         if key == "info":
             lbl_val_w = ttk.Label(item_f, text=texto_a_mostrar, style="Info.TLabel", wraplength=text_frame.winfo_width() - 150 if text_frame.winfo_width() > 150 else 250)
@@ -355,10 +386,12 @@ def mostrar_informacion_producto_seleccionado_ui(event=None):
     btns_enlaces_f.pack(fill="x", pady=(15,5), anchor="nw")
     
     manual_valor = datos_prod.get('manual', '').strip()
+    # Se muestra el botón "Ver Manual" si hay un valor válido.
     if manual_valor and _es_url_valida(manual_valor): 
         ttk.Button(btns_enlaces_f, text="Ver Manual", style="Accent.TButton", command=lambda m=manual_valor: abrir_enlace_web_util(m, app_principal_ref)).pack(side="left", padx=(0,10))
     
     calibracion_valor = datos_prod.get('calibracion', '').strip()
+    # Se muestra el botón "Ver Calibración" si hay un valor válido.
     if calibracion_valor and _es_url_valida(calibracion_valor): 
         ttk.Button(btns_enlaces_f, text="Ver Calibración", style="Accent.TButton", command=lambda c=calibracion_valor: abrir_enlace_web_util(c, app_principal_ref)).pack(side="left", padx=(0,10))
 
@@ -493,7 +526,7 @@ def _abrir_ventana_gestion_usuarios_ui_accion():
         ttk.Label(frame_nuevo, text="Rol:", style="Reg.TLabel").pack(anchor="w")
         combo_rol_nuevo = ttk.Combobox(frame_nuevo, values=["usuario", "administrador"], state="readonly", style="Reg.TEntry")
         combo_rol_nuevo.pack(fill="x", pady=(0,10))
-        combo_rol_nuevo.set("usuario") 
+        combo_rol_nuevo.set("usuario")
 
         def _guardar_nuevo_usuario():
             """Guarda el nuevo usuario registrado."""
@@ -508,13 +541,12 @@ def _abrir_ventana_gestion_usuarios_ui_accion():
             if auth_handler.registrar_nuevo_usuario(nombre, contrasena, rol):
                 registrar_accion_excel("Registro Usuario", f"Usuario: {nombre}, Rol: {rol}")
                 messagebox.showinfo("Éxito", f"Usuario '{nombre}' registrado.", parent=ventana_nuevo_usuario)
-                _actualizar_lista_usuarios() 
+                _actualizar_lista_usuarios()
                 ventana_nuevo_usuario.destroy()
             else:
                 messagebox.showerror("Error", f"El usuario '{nombre}' ya existe o hubo un error al registrar.", parent=ventana_nuevo_usuario)
 
         ttk.Button(frame_nuevo, text="Registrar", command=_guardar_nuevo_usuario, style="Accent.TButton").pack(pady=10)
-#w
 
     def _eliminar_usuario_ui_accion():
         """Elimina un usuario seleccionado."""
@@ -529,7 +561,7 @@ def _abrir_ventana_gestion_usuarios_ui_accion():
 
         if messagebox.askyesno("Confirmar Eliminación", f"¿Realmente desea eliminar el usuario '{nombre_usuario_sel}'? Esta acción es irreversible.", parent=ventana_gestion_usuarios):
             if auth_handler.eliminar_usuario(nombre_usuario_sel):
-                registrar_accion_excel("Eliminacion Usuario", f"Usuario: {nombre_usuario_sel}")
+                registrar_accion_excel("Eliminacion Usuario", f"Usuario: {nombre_usuario_sel}") # CORREGIDO: Usar nombre_usuario_sel
                 messagebox.showinfo("Eliminado", f"Usuario '{nombre_usuario_sel}' eliminado.", parent=ventana_gestion_usuarios)
                 _actualizar_lista_usuarios()
             else:
@@ -539,9 +571,9 @@ def _abrir_ventana_gestion_usuarios_ui_accion():
     btn_frame_user_mgmt = ttk.Frame(main_frame_user_mgmt, style="UserMgmt.TFrame")
     btn_frame_user_mgmt.pack(fill="x", pady=10)
 
-    # Botones de acción para la gestión de usuarios w
+    # Botones de acción para la gestión de usuarios
     ttk.Button(btn_frame_user_mgmt, text="Guardar Cambios", command=_guardar_cambios_usuario, style="Accent.TButton").pack(side="left", padx=(0,10))
-    ttk.Button(btn_frame_user_mgmt, text="Registrar Nuevo", command=_registrar_nuevo_usuario_ui_accion, style="Accent.TButton").pack(side="left", padx=(0,10)) # <--- ¡ERROR CORREGIDO AQUÍ!
+    ttk.Button(btn_frame_user_mgmt, text="Registrar Nuevo", command=_registrar_nuevo_usuario_ui_accion, style="Accent.TButton").pack(side="left", padx=(0,10))
     ttk.Button(btn_frame_user_mgmt, text="Eliminar Usuario", command=_eliminar_usuario_ui_accion, style="Accent.TButton").pack(side="left")
 
     lista_usuarios_widget.bind("<<ListboxSelect>>", _seleccionar_usuario_para_edicion)
@@ -560,18 +592,18 @@ def _intentar_login_ui_logic(entry_usuario, entry_contrasena, ventana_login_ref_
         data_manager.hora_inicio_sesion_actual = datetime.datetime.now()
         registrar_accion_excel("Inicio Sesion", f"Usuario: {data_manager.usuario_actual['nombre']}, Rol: {data_manager.usuario_actual['rol']}")
         
-        ventana_login_ref_local.destroy() 
-        ventana_login_actual_ref = None 
+        ventana_login_ref_local.destroy()
+        ventana_login_actual_ref = None
         
-        app_main_ref.deiconify() 
-        callback_exito_login_ref(app_main_ref) 
+        app_main_ref.deiconify()
+        callback_exito_login_ref(app_main_ref)
     else:
         messagebox.showerror("Error de Inicio de Sesión", "Usuario o contraseña incorrectos.", parent=ventana_login_ref_local)
 
 def crear_ventana_login_ui(app_principal_arg, callback_exito_login_arg):
     """Crea y muestra la ventana de inicio de sesión."""
-    global app_principal_ref, ventana_login_actual_ref 
-    app_principal_ref = app_principal_arg 
+    global app_principal_ref, ventana_login_actual_ref
+    app_principal_ref = app_principal_arg
 
     if ventana_login_actual_ref and ventana_login_actual_ref.winfo_exists():
         ventana_login_actual_ref.destroy()
@@ -583,13 +615,13 @@ def crear_ventana_login_ui(app_principal_arg, callback_exito_login_arg):
     # --- Fin de la modificación ---
     ventana_login_ui.resizable(False, False)
     ventana_login_ui.configure(background=config.COLOR_BACKGROUND)
-    ventana_login_ui.grab_set() 
+    ventana_login_ui.grab_set()
     ventana_login_ui.protocol("WM_DELETE_WINDOW", lambda: on_app_close_ui())
 
     ventana_login_actual_ref = ventana_login_ui
 
     login_ui_style_local = ttk.Style(ventana_login_ui)
-    try: login_ui_style_local.theme_use('clam') 
+    try: login_ui_style_local.theme_use('clam')
     except tk.TclError: login_ui_style_local.theme_use('default')
     login_ui_style_local.configure("Login.TFrame", background=config.COLOR_BACKGROUND)
     login_ui_style_local.configure("Login.Header.TLabel", background=config.COLOR_BACKGROUND, foreground=config.COLOR_HEADER_BG, font=("Arial", 16, "bold"))
@@ -622,7 +654,7 @@ def inicializar_enciclopedia_ui(app_principal_arg):
     """Inicializa la interfaz principal de la enciclopedia después de un login exitoso."""
     global app_principal_ref, entrada_modelo_busqueda_widget, lista_sugerencias_busqueda_widget, notebook_widget, tab_info_producto_widget, frame_info_producto_dinamico, lbl_total_stock_widget, style_aplicacion_global
 
-    app_principal_ref = app_principal_arg 
+    app_principal_ref = app_principal_arg
     app_principal_ref.title(f"Balanzas Triunfo Enciclopedia - {data_manager.usuario_actual['nombre']} ({data_manager.usuario_actual['rol']})")
     app_principal_ref.protocol("WM_DELETE_WINDOW", on_app_close_ui)
 
@@ -693,7 +725,7 @@ def inicializar_enciclopedia_ui(app_principal_arg):
 
     frame_info_producto_dinamico = ttk.Frame(tab_info_producto_widget, style="Content.TFrame")
     frame_info_producto_dinamico.pack(expand=True, fill='both')
-    mostrar_informacion_producto_seleccionado_ui() 
+    mostrar_informacion_producto_seleccionado_ui()
     
     entrada_modelo_busqueda_widget.focus()
 
@@ -706,5 +738,5 @@ def on_app_close_ui():
     else:
         registrar_accion_excel("Cierre Aplicacion", "Sin inicio de sesion previo (cerrado desde login o sesion ya limpia).")
     
-    if app_principal_ref: 
+    if app_principal_ref:
         app_principal_ref.destroy()
